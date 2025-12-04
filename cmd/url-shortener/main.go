@@ -2,8 +2,12 @@ package main
 
 import (
 	"fw_go_final/internal/config"
+	"fw_go_final/internal/lib/logger/sl"
+	"fw_go_final/internal/storage/sqlite"
 	"log/slog"
 	"os"
+
+	_ "github.com/mattn/go-sqlite3" // init sqlite3 driver
 )
 
 const (
@@ -19,6 +23,14 @@ func main() {
 
 	log.Info("starting url-shortener", slog.String("env", cfg.Env))
 	log.Debug("debug messages are enabled")
+
+	storage, err := sqlite.New(cfg.StoragePath)
+	if err != nil {
+		log.Error("failed to init storage", sl.Err(err))
+		os.Exit(1)
+	}
+
+	_ = storage
 }
 
 func setupLogger(env string) *slog.Logger {
