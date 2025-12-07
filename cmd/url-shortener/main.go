@@ -7,6 +7,8 @@ import (
 	"log/slog"
 	"os"
 
+	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
 	_ "github.com/mattn/go-sqlite3" // init sqlite3 driver
 )
 
@@ -23,6 +25,7 @@ func main() {
 
 	log.Info("starting url-shortener", slog.String("env", cfg.Env))
 	log.Debug("debug messages are enabled")
+	log.Error("error messages are enabled")
 
 	storage, err := sqlite.New(cfg.StoragePath)
 	if err != nil {
@@ -31,6 +34,13 @@ func main() {
 	}
 
 	_ = storage
+
+	router := chi.NewRouter()
+
+	router.Use(middleware.RequestID)
+	router.Use(middleware.Logger)    // логгер
+	router.Use(middleware.Recoverer) // перехватывает ошибку в момент паники
+	router.Use(middleware.URLFormat) // подключаем красивые урлы
 
 }
 
