@@ -2,6 +2,7 @@ package main
 
 import (
 	"fw_go_final/internal/config"
+	"fw_go_final/internal/http-server/handlers/redirect"
 	"fw_go_final/internal/http-server/handlers/url/save"
 	"fw_go_final/internal/lib/logger/sl"
 	"fw_go_final/internal/storage/sqlite"
@@ -34,7 +35,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	_ = storage
+	//_ = storage
 
 	router := chi.NewRouter()
 
@@ -43,7 +44,8 @@ func main() {
 	router.Use(middleware.Recoverer) // перехватывает ошибку в момент паники
 	router.Use(middleware.URLFormat) // подключаем красивые урлы
 
-	router.Post("/", save.New(log, storage))
+	router.Post("/url", save.New(log, storage))
+	router.Get("/{alias}", redirect.New(log, storage))
 
 	log.Info("starting server", slog.String("address", cfg.Address))
 
